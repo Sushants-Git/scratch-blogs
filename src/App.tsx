@@ -1,13 +1,17 @@
 import { CButton } from "@/components/ui/c-button";
 import "./App.css";
-import { ForwardedRef, memo, useEffect, useRef } from "react";
+import { ForwardedRef, memo, useEffect, useRef, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import ExcalidrawLogo from "./assets/excalidraw-logo.svg?react";
+import AiLogo from "./assets/ai-logo.svg?react";
 import useBlogStore from "./store";
 
 import { forwardRef } from "react";
 import Markdown from "react-markdown";
 import { X } from "lucide-react";
+import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { onCopy } from "./utils";
 
 const resizeOnInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
     e.currentTarget.style.height = "auto";
@@ -59,7 +63,7 @@ function Blog() {
                         <CButton
                             variant={"secondary"}
                             onClick={() => {
-                                appendContent("", "diagram");
+                                appendContent([], "diagram");
                                 appendContent("", "text");
                             }}
                         >
@@ -123,17 +127,32 @@ const Title = forwardRef((_, ref: ForwardedRef<HTMLTextAreaElement>) => {
     );
 });
 
-const Content = () => {
-    const contentArray = useBlogStore((state) => state.content);
-    const mode = useBlogStore((state) => state.mode);
+const RenderDiagram = ({
+    id,
+    data,
+}: {
+    id: string;
+    data: readonly ExcalidrawElement[];
+}) => {
+    const [excalidrawAPI, setExcalidrawAPI] =
+        useState<ExcalidrawImperativeAPI | null>(null);
     const removeContent = useBlogStore((state) => state.removeContent);
 
-    const renderDiagram = (id: string) => (
+    return (
         <div className="pb-5">
-            <div className="flex justify-end pb-2">
+            <div className="flex justify-between pb-2">
+                <CButton size="icon">
+                    <AiLogo className="h-10" />
+                </CButton>
+
+                {
+                    // <CButton onClick={() => { onCopy(excalidrawAPI, "png") }}> Copy as png </CButton>
+                }
+
                 <CButton
                     variant="ghost"
                     size="icon"
+                    className="border"
                     onClick={() => removeContent(id)}
                 >
                     <X className="h-4 w-4" />
@@ -143,10 +162,20 @@ const Content = () => {
                 style={{ height: "600px" }}
                 className="border-2 p-2 rounded-md"
             >
-                <Excalidraw />
+                <Excalidraw
+                    initialData={{ elements: data }}
+                    excalidrawAPI={(api: ExcalidrawImperativeAPI) =>
+                        setExcalidrawAPI(api)
+                    }
+                />
             </div>
         </div>
     );
+};
+
+const Content = () => {
+    const contentArray = useBlogStore((state) => state.content);
+    const mode = useBlogStore((state) => state.mode);
 
     const renderImage = (data: string) => (
         <pre>
@@ -157,11 +186,15 @@ const Content = () => {
     const renderContent = (content: {
         id: string;
         type: string;
-        data: string;
+        data: string | readonly ExcalidrawElement[];
     }) => {
         const uniqueKey = `${content.id}-${content.type}`;
 
-        if (mode === "preview" && content.type === "text") {
+        if (
+            mode === "preview" &&
+            content.type === "text" &&
+            typeof content.data === "string"
+        ) {
             return (
                 <Markdown key={uniqueKey} className="mb-2">
                     {content.data}
@@ -171,17 +204,38 @@ const Content = () => {
 
         switch (content.type) {
             case "text":
-                return (
-                    <TextArea
-                        key={uniqueKey}
-                        data={content.data}
-                        id={content.id}
-                    />
-                );
+                if (typeof content.data === "string") {
+                    return (
+                        <TextArea
+                            key={uniqueKey}
+                            data={content.data}
+                            id={content.id}
+                        />
+                    );
+                } else {
+                    return null;
+                }
             case "image":
-                return <div key={uniqueKey}>{renderImage(content.data)}</div>;
+                if (typeof content.data === "string") {
+                    return (
+                        <div key={uniqueKey}>{renderImage(content.data)}</div>
+                    );
+                } else {
+                    return null;
+                }
             case "diagram":
-                return <div key={uniqueKey}>{renderDiagram(content.id)}</div>;
+                if (Array.isArray(content.data)) {
+                    return (
+                        <div key={uniqueKey}>
+                            <RenderDiagram
+                                id={content.id}
+                                data={content.data}
+                            />
+                        </div>
+                    );
+                } else {
+                    return null;
+                }
             default:
                 return null;
         }

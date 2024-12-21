@@ -1,17 +1,18 @@
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
+import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 
 export interface BlogState {
     mode: "edit" | "preview";
     title: string;
     content: {
         id: string;
-        data: string;
+        data: string | readonly ExcalidrawElement[];
         type: "text" | "image" | "diagram";
     }[];
     setTitle: (title: string) => void;
-    appendContent: (data: string, type: "text" | "image" | "diagram") => void;
-    updateContent: (id: string, data: string) => void;
+    appendContent: (data: string | readonly ExcalidrawElement[], type: "text" | "image" | "diagram") => void;
+    updateContent: (id: string, data: string | ExcalidrawElement[]) => void;
     removeContent: (id: string) => void;
     toggleMode: (mode: BlogState["mode"]) => void;
 }
