@@ -9,11 +9,13 @@ export interface BlogState {
         id: string;
         data: string | readonly ExcalidrawElement[];
         type: "text" | "image" | "diagram";
+        file?: File;
     }[];
     setTitle: (title: string) => void;
     appendContent: (
         data: string | readonly ExcalidrawElement[],
         type: "text" | "image" | "diagram",
+        file?: File,
     ) => void;
     updateContent: (id: string, data: string | ExcalidrawElement[]) => void;
     removeContent: (id: string) => void;
@@ -30,9 +32,9 @@ const useBlogStore = create<BlogState>()((set) => ({
             title,
         }));
     },
-    appendContent: (data, type) => {
+    appendContent: (data, type, file) => {
         set((state) => ({
-            content: [...state.content, { id: uuidv4(), data, type }],
+            content: [...state.content, { id: uuidv4(), data, type, file }],
         }));
     },
     updateContent: (id, data) => {

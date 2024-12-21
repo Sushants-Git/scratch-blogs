@@ -15,3 +15,13 @@ export const onCopy = async (
         type,
     });
 };
+
+export const resizeOnInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    e.currentTarget.style.height = "auto";
+    e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`;
+};
+
+export const resizeOnToggle = (e: HTMLTextAreaElement) => {
+    e.style.height = "auto";
+    e.style.height = `${e.scrollHeight}px`;
+};
