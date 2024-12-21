@@ -1,6 +1,12 @@
 import { CButton } from "@/components/ui/c-button";
 import "./App.css";
-import { ForwardedRef, memo, useEffect, useRef, useState } from "react";
+import {
+    ForwardedRef,
+    memo,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import ExcalidrawLogo from "./assets/excalidraw-logo.svg?react";
 import AiLogo from "./assets/ai-logo.svg?react";
@@ -12,6 +18,9 @@ import { X } from "lucide-react";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { onCopy } from "./utils";
+import { createPortal } from "react-dom";
+
+import dedent from "dedent";
 
 const resizeOnInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
     e.currentTarget.style.height = "auto";
@@ -141,14 +150,7 @@ const RenderDiagram = ({
     return (
         <div className="pb-5">
             <div className="flex justify-between pb-2">
-                <CButton size="icon">
-                    <AiLogo className="h-10" />
-                </CButton>
-
-                {
-                    // <CButton onClick={() => { onCopy(excalidrawAPI, "png") }}> Copy as png </CButton>
-                }
-
+                <AiButton excalidrawAPI={excalidrawAPI} id={id} />
                 <CButton
                     variant="ghost"
                     size="icon"
@@ -173,9 +175,171 @@ const RenderDiagram = ({
     );
 };
 
+const Modal = ({
+    isOpen,
+    onClose,
+    content,
+    onContentChange,
+    onTake,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    content: string;
+    onContentChange: (content: string) => void;
+    onTake: () => void;
+}) => {
+    if (!isOpen) return null;
+
+    return createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 font-geist_mono">
+            <div className="bg-white rounded-sm p-6 w-3/4 max-w-2xl">
+                <h2 className="text-lg font-semibold mb-4">
+                    Generated Content
+                </h2>
+                <textarea
+                    value={content}
+                    onChange={(e) => onContentChange(e.target.value)}
+                    className="w-full h-72 border border-gray-300 p-2 resize-none focus:outline-none text-sm"
+                />
+                <div className="mt-4 flex justify-end gap-4">
+                    <CButton variant="secondary" onClick={onClose}>
+                        Close
+                    </CButton>
+                    <CButton onClick={onTake}>Take</CButton>
+                </div>
+            </div>
+        </div>,
+        document.body,
+    );
+};
+
+const AiButton = ({
+    excalidrawAPI,
+    id,
+}: {
+    excalidrawAPI: ExcalidrawImperativeAPI | null;
+    id: string;
+}) => {
+    const [generatedContent, setGeneratedContent] = useState<string | null>(
+        null,
+    );
+    const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const putGeneratedContent = useBlogStore(
+        (state) => state.putGeneratedContent,
+    );
+    const title = useBlogStore((state) => state.title);
+
+    const handleClick = async () => {
+        try {
+            setIsLoading(true);
+            await onCopy(excalidrawAPI, "png");
+
+            const clipboardItems = await navigator.clipboard.read();
+
+            for (const clipboardItem of clipboardItems) {
+                const imageTypes = clipboardItem.types.filter((type) =>
+                    type.startsWith("image/"),
+                );
+                if (imageTypes.length > 0) {
+                    const blob = await clipboardItem.getType(imageTypes[0]);
+
+                    const formData = new FormData();
+                    formData.append("file", blob);
+
+                    formData.append(
+                        "prompt",
+                        dedent`
+I am writing a blog post about ${title ? title : "the subject of this image"}, and I need your help crafting the content. This blog incorporates images throughout, and I will provide one of these images for you to write about. 
+
+Since this image appears in the **middle of the blog**, ensure the content reflects its placement—it should neither sound like the introduction nor the conclusion. Focus on maintaining a natural flow as if continuing a discussion.
+
+The image is provided below. Please write engaging content based on it, using a good amount of **Markdown formatting** for structure and readability.
+
+- do not use html
+- there is no need to include the image in the content
+    `,
+                    );
+
+                    const response = await fetch(
+                        import.meta.env.VITE_BACKEND_URL + "/upload",
+                        {
+                            method: "POST",
+                            body: formData,
+                        },
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Failed to upload image");
+                    }
+
+                    const data = await response.json();
+                    setGeneratedContent(data.blog);
+                    setIsModalOpen(true);
+                    console.log("Upload successful:", data);
+                }
+            }
+        } catch (error) {
+            console.error("Upload failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleTake = () => {
+        putGeneratedContent(generatedContent || "", "text", id);
+        console.log("Taking content:", generatedContent);
+        setIsModalOpen(false);
+    };
+
+    const handleClose = () => setIsModalOpen(false);
+
+    const handleContentChange = (content: string) => {
+        setGeneratedContent(content);
+    };
+
+    return (
+        <>
+            <CButton
+                size="icon"
+                onClick={handleClick}
+                disabled={isLoading}
+                className="relative w-10 h-10"
+            >
+                {isLoading ? (
+                    <div className="animate-spin w-5 h-5 rounded-full border-2 border-white/20 border-t-white" />
+                ) : (
+                    <AiLogo className="h-10" />
+                )}
+            </CButton>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                content={generatedContent || ""}
+                onContentChange={handleContentChange}
+                onTake={handleTake}
+            />
+        </>
+    );
+};
+
 const Content = () => {
     const contentArray = useBlogStore((state) => state.content);
     const mode = useBlogStore((state) => state.mode);
+
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    // useEffect(() => {
+    //     const container = containerRef.current;
+    //     if(!container) return;
+
+    //     const scrollPosition = container.scrollTop;
+
+    //     return () => {
+    //         container.scrollTop = scrollPosition;
+    //     };
+    // });
 
     const renderImage = (data: string) => (
         <pre>
@@ -242,7 +406,7 @@ const Content = () => {
     };
 
     return (
-        <div>
+        <div ref={containerRef}>
             <section className={mode === "preview" ? "markdown-wrapper" : ""}>
                 {contentArray.map(renderContent)}
             </section>

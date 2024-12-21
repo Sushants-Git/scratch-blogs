@@ -14,6 +14,4 @@ export const onCopy = async (
         files: excalidrawAPI.getFiles(),
         type,
     });
-
-    window.alert(`Copied to clipboard as ${type} successfully`);
 };

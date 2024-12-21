@@ -11,9 +11,13 @@ export interface BlogState {
         type: "text" | "image" | "diagram";
     }[];
     setTitle: (title: string) => void;
-    appendContent: (data: string | readonly ExcalidrawElement[], type: "text" | "image" | "diagram") => void;
+    appendContent: (
+        data: string | readonly ExcalidrawElement[],
+        type: "text" | "image" | "diagram",
+    ) => void;
     updateContent: (id: string, data: string | ExcalidrawElement[]) => void;
     removeContent: (id: string) => void;
+    putGeneratedContent: (data: string, type: "text", id: string) => void;
     toggleMode: (mode: BlogState["mode"]) => void;
 }
 
@@ -60,6 +64,20 @@ const useBlogStore = create<BlogState>()((set) => ({
 
             return {
                 content: state.content.filter((content) => content.id !== id),
+            };
+        });
+    },
+    putGeneratedContent: (data, type, id) => {
+        set((state) => {
+            const index = state.content.findIndex(
+                (content) => content.id === id,
+            );
+            return {
+                content: [
+                    ...state.content.slice(0, index + 1),
+                    { id: uuidv4(), data, type },
+                    ...state.content.slice(index + 2),
+                ],
             };
         });
     },
