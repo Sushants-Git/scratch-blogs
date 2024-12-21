@@ -4,14 +4,17 @@ export default {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
         extend: {
-            geist: ["Geist", "serif"],
-            geist_mono: ["Geist Mono", "serif"],
+            fontFamily: {
+                geist: ["Geist", "serif"],
+                geist_mono: ["Geist Mono", "serif"],
+            },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
             colors: {
+                smoke: "#fafafa",
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
                 c_gray: "#e5e5e5",

@@ -1,2 +1,112 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+
+.markdown-wrapper {
+    @apply font-geist;
+}
+
+/* Headers - Reduced contrast and spacing */
+.markdown-wrapper h1 {
+    @apply text-3xl font-semibold mb-4 text-gray-800 dark:text-gray-100 border-b pb-2 border-gray-200 dark:border-gray-700;
+}
+
+.markdown-wrapper h2 {
+    @apply text-2xl font-semibold mt-5 mb-3 text-gray-700 dark:text-gray-200;
+}
+
+.markdown-wrapper h3 {
+    @apply text-xl font-medium mt-4 mb-2 text-gray-600 dark:text-gray-300;
+}
+
+/* Body text - Improved readability */
+.markdown-wrapper p {
+    @apply text-gray-700 dark:text-gray-300 leading-relaxed mb-3;
+}
+
+/* Lists - Base styles */
+.markdown-wrapper ul,
+.markdown-wrapper ol {
+    @apply space-y-1 my-1 ml-4;
+}
+
+/* Unordered list items */
+.markdown-wrapper ul > li {
+    @apply text-gray-700 dark:text-gray-300 leading-relaxed list-disc;
+}
+
+/* Ordered list items */
+.markdown-wrapper ol > li {
+    @apply text-gray-700 dark:text-gray-300 leading-relaxed list-decimal;
+}
+
+/* Nested lists - Add proper indentation */
+.markdown-wrapper ul ul,
+.markdown-wrapper ol ol,
+.markdown-wrapper ul ol,
+.markdown-wrapper ol ul {
+    @apply ml-4 my-1;
+}
+
+/* /1* Lists - More subtle indentation and spacing *1/ */
+/* .markdown-wrapper ul { */
+/*     @apply space-y-1 my-1 ml-4; */
+/* } */
+
+/* .markdown-wrapper li { */
+/*     @apply text-gray-700 dark:text-gray-300 leading-relaxed list-disc; */
+/* } */
+
+/* Code blocks - Softer contrast */
+.markdown-wrapper pre {
+    @apply bg-gray-50 dark:bg-gray-900 rounded p-3 my-3 overflow-x-auto;
+}
+
+.markdown-wrapper code {
+    @apply font-geist_mono text-sm;
+}
+
+.markdown-wrapper pre code {
+    @apply block text-gray-700 dark:text-gray-300;
+}
+
+/* Inline code - More subtle styling */
+.markdown-wrapper p code {
+    @apply bg-gray-50 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300;
+}
+
+.markdown-wrapper code:not(pre > code) {
+    @apply text-blue-500 dark:text-blue-400 whitespace-nowrap;
+}
+
+/* Strong text - Reduced contrast */
+.markdown-wrapper strong {
+    @apply font-semibold text-gray-800 dark:text-gray-100;
+}
+
+/* Horizontal rule - Lighter */
+.markdown-wrapper hr {
+    @apply my-6 border-t border-gray-200 dark:border-gray-700;
+}
+
+/* Links - Softer colors */
+.markdown-wrapper a {
+    @apply text-blue-500 dark:text-blue-400 hover:underline;
+}
+
+/* Emojis */
+.markdown-wrapper span[role="img"] {
+    @apply inline-block align-middle;
+}
+
+/* Responsive Design */
+/* @screen sm { */
+/*     .markdown-wrapper { */
+/*         @apply p-8; */
+/*     } */
+/* } */
+
+/* @screen md { */
+/*     .markdown-wrapper { */
+/*         @apply p-10; */
+/*     } */
+/* } */
