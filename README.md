@@ -1,50 +1,28 @@
-# React + TypeScript + Vite
+This was made as a hackathon project for [Peerlist Hackthon](https://peerlist.io/sushantspeer/project/scratch-blogs) by [Vee](https://github.com/veesesh), [Ashish Malla](https://github.com/im45145v) and [Sushant](https://github.com/Sushants-Git)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Demo : [Scratch Blogs](https://www.youtube.com/watch?v=bJMj_w8W5Dk)
 
-Currently, two official plugins are available:
+--
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Scratch Blogs
 
-## Expanding the ESLint configuration
+![image](https://github.com/user-attachments/assets/e790f02e-4f12-46db-9bd1-bf0af98a37cd)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
+## Inspiration💡
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Remember the feeling of scribbling your thoughts, ideas, or even random doodles in your trusty old scrapbook? No rules, no pressure—just pure creativity. Blogging should feel the same way, but it often becomes a chore: planning, editing, and perfecting.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+With Scratch Blogs, we’ve changed that. Now, blogging is as easy and free-flowing as jotting down notes in your scrapbook. Let your creativity take over, and we’ll handle the rest. Blog like you draw in your scratch book—effortless and fun.
+What it does 💪
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+We offer an advanced editor that allows users to write text using Markdown, draw flowcharts or diagrams on the spot, and upload images seamlessly.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+With this editor, users can create content, design diagrams, and much more. Additionally, after drawing a diagram, creating a flowchart, or uploading an image, they can simply click "Generate" to automatically create content based on their visuals.
+
+## How we built it ❓🧠
+
+- We used React and Typescript to built the Frontend and used express to build the Backend which is deployed on a Azure VM.
+- We used Gemini AI to generate content based on the rough sketches the user draws on excalidraw and image they upload.
+- We used the excalidraw npm package to integrating digital sketching.
+- Design inspiration taken from : https://internal.rightfit.so/
